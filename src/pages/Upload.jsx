@@ -195,10 +195,23 @@ const Upload = () => {
           typeof selectedBgImage === "string" &&
           selectedBgImage.startsWith("http")
         ) {
-          const image = unsplashImages.find(
-            (img) => img.urls.small_s3 === selectedBgImage
+          // 1️⃣ Check Unsplash Images
+          const unsplashImage = unsplashImages?.find(
+            (img) => img.urls?.small_s3 === selectedBgImage
           );
-          formData.append("bgImageUrl", image.urls.full);
+
+          if (unsplashImage) {
+            formData.append("bgImageUrl", unsplashImage.urls.full);
+          } else {
+            // 2️⃣ Fallback to AI Generated Images
+            const aiImage = aiGeneratedImages?.find(
+              (url) => url === selectedBgImage
+            );
+
+            if (aiImage) {
+              formData.append("bgImageUrl", aiImage);
+            }
+          }
         } else {
           // If it’s a locally uploaded file (blob URL from File input)
           const bgBlob = await fetch(selectedBgImage).then((res) => res.blob());
@@ -277,6 +290,8 @@ const Upload = () => {
       setPrompt("");
     }
   }
+
+  console.log(aiGeneratedImages);
   // get images from Unsplash
   useEffect(() => {
     getImagesFromUnsplash();
@@ -296,7 +311,7 @@ const Upload = () => {
     <div className=" bg-gray-100 pb-24  relative">
       {/* Top navbar */}
       <nav className="fixed -bottom-1 z-20 w-full  lg:relative  lg:max-w-2xl  md:mx-auto ">
-        <div className="rounded-xl p-10  bg-white border border-gray-200 md:rounded-full  md:p-2 md:mb-4">
+        <div className="rounded-xl p-4  bg-white border border-gray-200 md:rounded-full  md:p-2 md:mb-4">
           <div className="flex rounded flex-wrap items-center justify-start gap-2 relative md:justify-center ">
             {/* Tabs */}
             <button
@@ -346,8 +361,8 @@ const Upload = () => {
         {isSidePanelOpen && (
           <div
             className={`
-    mx-auto bg-white border border-gray-200 rounded-lg overflow-y-auto h-96
-    fixed bottom-0 left-0 w-full z-40 lg:relative lg:w-96 bg-opacity-90
+    mx-auto bg-white border border-gray-200 rounded-lg overflow-y-auto h-80
+    fixed bottom-14 left-0 w-full z-30 lg:static lg:w-96 lg:h-96 bg-opacity-90
     transform-gpu transition-transform duration-1000 ease-out
     ${isSidePanelOpen ? "translate-y-0" : "translate-y-full"}
     lg:translate-y-0
@@ -356,7 +371,7 @@ const Upload = () => {
             <div>
               <button
                 onClick={() => setIsSidePanelOpen(false)}
-                className="absolute top-2 right-2 z-40 border shadow-sm rounded-full w-8 h-8 flex items-center justify-center hover:scale-110 transition-all duration-200 font-bold"
+                className="absolute top-2 right-2 z-30 border shadow-sm rounded-full w-8 h-8 flex items-center justify-center hover:scale-110 transition-all duration-200 font-bold"
               >
                 ✖
               </button>
@@ -404,7 +419,7 @@ const Upload = () => {
               flex flex-col gap-4 p-4
               rounded-t-2xl lg:rounded-2xl
               bg-gradient-to-b from-gray-50 to-white shadow-inner 
-              z-40
+              z-30
             "
                     >
                       {/* Header + Close button */}
