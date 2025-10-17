@@ -97,6 +97,13 @@ const Upload = () => {
     if (!file || !file.type.startsWith("image/")) return;
 
     setLoading(true);
+    // ✅ Show warning toast only if it takes more than 30s
+    let timeoutToast;
+    const timeoutId = setTimeout(() => {
+      timeoutToast = toast.loading(
+        "Server is waking up… this may take up to a minutes on the first try."
+      );
+    }, 30000); // 30 seconds
     try {
       const formData = new FormData();
       formData.append("image", file);
@@ -116,6 +123,12 @@ const Upload = () => {
     } catch (err) {
       toast.error("Failed to remove background.");
     } finally {
+      clearTimeout(timeoutId); // ✅ Prevent showing timeout toast if request finished earlier
+
+      if (timeoutToast) {
+        toast.dismiss(timeoutToast); // ✅ Remove loading message if it appeared
+      }
+
       setLoading(false);
     }
   };
