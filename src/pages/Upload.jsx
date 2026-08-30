@@ -48,7 +48,7 @@ const Upload = () => {
   async function getImagesFromUnsplash() {
     try {
       const response = await fetch(
-        "https://api.unsplash.com/photos?per_page=10&page=1",
+        "https://api.unsplash.com/search/photos?query=background&per_page=10&page=1&orientation=landscape",
         {
           headers: {
             Authorization: `Client-ID ${
@@ -63,7 +63,7 @@ const Upload = () => {
       if (!response.ok) {
         return;
       }
-      setUnsplashImages([...result]);
+      setUnsplashImages([...result.results]);
     } catch (error) {
       toast.error(error.message);
     }
